@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FORGE3D — Game Engine</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- ===== TOP BAR ===== -->
+<header id="topbar">
+  <div class="logo"><span class="logo-icon">⬡</span> FORGE<span>3D</span></div>
+  <nav class="toolbar">
+    <button class="tb-btn active" id="btn-select" title="Select (Q)"><svg viewBox="0 0 24 24"><path d="M4 2l16 9-7 2-4 8z"/></svg></button>
+    <button class="tb-btn" id="btn-move" title="Move (W)"><svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/></svg></button>
+    <button class="tb-btn" id="btn-rotate" title="Rotate (E)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 8 8"/></svg></button>
+    <button class="tb-btn" id="btn-scale" title="Scale (R)"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="8" height="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 3h4v4M17 3h4v4M3 17h4v4M17 17h4v4"/></svg></button>
+    <div class="tb-sep"></div>
+    <button class="tb-btn accent" id="btn-play" title="Play Scene"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></button>
+    <button class="tb-btn" id="btn-pause" title="Pause" style="display:none"><svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></button>
+    <button class="tb-btn" id="btn-stop" title="Stop Scene"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16"/></svg></button>
+    <div class="tb-sep"></div>
+    <button class="tb-btn" id="btn-screenshot" title="Screenshot"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="13" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 6l2-3h4l2 3"/></svg></button>
+  </nav>
+  <div class="engine-status">
+    <span id="fps-counter">60 FPS</span>
+    <span id="obj-counter">0 Objects</span>
+    <span id="play-status">● EDIT</span>
+  </div>
+</header>
+
+<!-- ===== MAIN LAYOUT ===== -->
+<main id="layout">
+
+  <!-- LEFT: Hierarchy + Assets -->
+  <aside id="panel-left">
+    <div class="panel-section">
+      <div class="panel-header">
+        <span>SCENE HIERARCHY</span>
+        <div class="panel-actions">
+          <button class="icon-btn" id="btn-add-obj" title="Add Object">＋</button>
+          <button class="icon-btn" id="btn-del-obj" title="Delete Selected">✕</button>
+        </div>
+      </div>
+      <ul id="scene-tree"></ul>
+    </div>
+
+    <div class="panel-section flex-grow">
+      <div class="panel-header"><span>ADD PRIMITIVE</span></div>
+      <div class="primitive-grid">
+        <button class="prim-btn" data-type="box">⬛ Box</button>
+        <button class="prim-btn" data-type="sphere">⚪ Sphere</button>
+        <button class="prim-btn" data-type="cylinder">🔵 Cylinder</button>
+        <button class="prim-btn" data-type="cone">🔺 Cone</button>
+        <button class="prim-btn" data-type="torus">⭕ Torus</button>
+        <button class="prim-btn" data-type="plane">▬ Plane</button>
+        <button class="prim-btn" data-type="light-point">💡 Point Light</button>
+        <button class="prim-btn" data-type="light-dir">☀️ Dir Light</button>
+        <button class="prim-btn" data-type="camera">🎥 Camera</button>
+        <button class="prim-btn" data-type="empty">◎ Empty</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CENTER: Viewport -->
+  <section id="viewport-wrap">
+    <div id="viewport-header">
+      <div class="vp-tabs">
+        <button class="vp-tab active" data-view="perspective">PERSPECTIVE</button>
+        <button class="vp-tab" data-view="top">TOP</button>
+        <button class="vp-tab" data-view="front">FRONT</button>
+        <button class="vp-tab" data-view="right">RIGHT</button>
+      </div>
+      <div class="vp-info">
+        <label><input type="checkbox" id="toggle-grid" checked> Grid</label>
+        <label><input type="checkbox" id="toggle-wireframe"> Wireframe</label>
+        <label><input type="checkbox" id="toggle-skybox" checked> Sky</label>
+        <select id="shading-mode">
+          <option value="solid">Solid</option>
+          <option value="material">Material</option>
+          <option value="unlit">Unlit</option>
+        </select>
+      </div>
+    </div>
+    <canvas id="viewport-canvas"></canvas>
+    <div id="gizmo-overlay">
+      <canvas id="gizmo-canvas" width="80" height="80"></canvas>
+    </div>
+    <div id="transform-overlay" class="hidden">
+      <span id="transform-label">T: 0.00, 0.00, 0.00</span>
+    </div>
+    <div id="play-overlay" class="hidden">
+      <div class="play-badge">▶ PLAYING</div>
+    </div>
+  </section>
+
+  <!-- RIGHT: Inspector -->
+  <aside id="panel-right">
+    <div class="panel-header"><span>INSPECTOR</span></div>
+    <div id="inspector-content">
+      <div class="inspector-empty">Select an object to inspect</div>
+    </div>
+  </aside>
+
+</main>
+
+<!-- ===== BOTTOM BAR ===== -->
+<footer id="bottombar">
+  <div class="console-header">
+    <span>CONSOLE</span>
+    <button id="clear-console" class="icon-btn">Clear</button>
+  </div>
+  <div id="console-log"></div>
+</footer>
+
+<!-- ===== ADD OBJECT MODAL ===== -->
+<div id="modal-overlay" class="hidden">
+  <div id="modal">
+    <h3>Add Object</h3>
+    <div class="modal-grid" id="modal-primitives"></div>
+    <button id="modal-close">Cancel</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="engine.js"></script>
+</body>
+</html>
